@@ -1,2 +1,2 @@
-idf_component_register(SRCS "nfcReader.c"
-                    INCLUDE_DIRS "./include")
+idf_component_register(SRCS "main.c" "PN532.c"
+                    INCLUDE_DIRS "." "include")
