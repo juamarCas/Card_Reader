@@ -18,8 +18,9 @@ void pn532_SendWakeUpCommand(USART_DEVICE * uart_dev);
 /**
  * @brief Send commad to get the firmware version
  * @param uart_dev pointer to a struct that contains write command for serial
+ * @return array of 2 position containing the version of the reader
 */
-void pn532_GetFirmwareVersionCommand(USART_DEVICE * uart_dev);
+uint8_t * pn532_GetFirmwareVersionCommand(USART_DEVICE * uart_dev);
 
 /**
  * @brief Send SAM configuration to start the system
@@ -27,6 +28,13 @@ void pn532_GetFirmwareVersionCommand(USART_DEVICE * uart_dev);
  * @return int, 1 if the operation was succesfull, 0 if there was a problem
 */
 uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev);
+
+/**
+ * @brief looks in the response of the NFC reader for the ACK
+ * @param data, array of data containing the PN532 response
+ * @return 1 if the ACK was successfull, 0 if there is no ACK
+*/
+static uint8_t pnf322_checkACK(uint8_t * data);
 
 void pn532_SendCommand(USART_DEVICE * uart_dev);
 

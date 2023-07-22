@@ -24,7 +24,6 @@ void app_main(void)
 {
     usart_dev.Write = &Write;
     usart_dev.Read  = &Read;
-    usart_dev.usart_num = UART2_NUM;
 
     gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
 
@@ -32,10 +31,15 @@ void app_main(void)
      
     pn532_SendWakeUpCommand(&usart_dev);
     vTaskDelay(15 / portTICK_PERIOD_MS);
-    pn532_SendSAMConfiguration(&usart_dev);
+    uint8_t response = pn532_SendSAMConfiguration(&usart_dev);
+    if(response <= 0){
+        //some error with the reader
+        while(1){}
+    }
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    pn532_GetFirmwareVersionCommand(&usart_dev);
+   
+    
     while(1){
         
         gpio_set_level(GPIO_NUM_4, 1);
@@ -76,6 +80,6 @@ uint32_t Read(uint8_t * data){
         length_check = uart_read_bytes(UART2_NUM, data, length_check, 100);
 
     }
-
+    uart_flush(UART2_NUM);
     return length_check;
 }
