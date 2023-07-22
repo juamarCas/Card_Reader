@@ -13,4 +13,6 @@
 #define PN532_GET_FIRMWARE_VERSION_COMMAND 0x02U
 #define PN532_SAM_CONFIGURATION_COMMAND    0x14U
 
+//mifare commands
+
 #endif

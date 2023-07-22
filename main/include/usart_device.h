@@ -14,7 +14,9 @@
  */
 
 typedef struct usart_device{
+	uint8_t usart_num;
 	void (*Write)(uint8_t * data, uint32_t size);
+	uint32_t (*Read)(uint8_t * data);
 }USART_DEVICE;
 
 #endif

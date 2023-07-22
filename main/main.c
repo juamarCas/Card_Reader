@@ -16,37 +16,26 @@
 USART_DEVICE usart_dev;
 
 void Write(uint8_t * data, uint32_t size);
+uint32_t Read(uint8_t * data);
 void Config_UART2();
+
 
 void app_main(void)
 {
     usart_dev.Write = &Write;
+    usart_dev.Read  = &Read;
+    usart_dev.usart_num = UART2_NUM;
+
     gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
 
     Config_UART2();
-    
-    uint8_t lcs = ~0x02 + 1;
-    uint8_t cs  = ~(PN532_FROM_UC_TFI + PN532_GET_FIRMWARE_VERSION_COMMAND ) + 1;
-    const uint8_t inverse_checksum = ~(PN532_FROM_UC_TFI + PN532_GET_FIRMWARE_VERSION_COMMAND ) + 1;
-    uint8_t wakeup[5] = {0x55, 0x55, 0x00, 0x00, 0x00};
-
-    uint8_t packet[9] = { 0x00, 0x00, 0xFF, 0x02, lcs, PN532_FROM_UC_TFI,
-			PN532_GET_FIRMWARE_VERSION_COMMAND , cs, 0x00
-	};
-
-    uint8_t lcs2 = ~(0x05) + 1;
-    uint8_t cs2 = ~(PN532_FROM_UC_TFI + 0x14 + 0x01 + 0x00 + 0x00) + 1;
-
-    uint8_t packet2[12] = { 0x00, 0x00, 0xFF, 0x05, lcs2, PN532_FROM_UC_TFI,
-				0x14, 0x01, 0x00, 0x00, cs2, 0x00
-	};
-
-    usart_dev.Write(wakeup, 5);
+     
+    pn532_SendWakeUpCommand(&usart_dev);
     vTaskDelay(15 / portTICK_PERIOD_MS);
-    usart_dev.Write(packet2, 12);
+    pn532_SendSAMConfiguration(&usart_dev);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    usart_dev.Write(packet, 9);
+    pn532_GetFirmwareVersionCommand(&usart_dev);
     while(1){
         
         gpio_set_level(GPIO_NUM_4, 1);
@@ -78,4 +67,15 @@ uart_config_t uart_config = {
 
 void Write(uint8_t * data, uint32_t size){
     uart_write_bytes(UART2_NUM, (const char *)data, size);
+}
+
+uint32_t Read(uint8_t * data){
+    uint8_t length_check = 0;
+    while(length_check <= 0){
+        ESP_ERROR_CHECK(uart_get_buffered_data_len(UART2_NUM, (size_t *)&length_check));
+        length_check = uart_read_bytes(UART2_NUM, data, length_check, 100);
+
+    }
+
+    return length_check;
 }
