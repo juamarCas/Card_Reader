@@ -1,6 +1,6 @@
-/*
-* Author: Juan D. Martín
-* Description: Abstract methods to send commands to the PN532 NFC reader
+/**
+* @author Juan D. Martín
+* @details Abstract methods to send commands to the PN532 NFC reader
 */
 
 #ifndef PN532_H

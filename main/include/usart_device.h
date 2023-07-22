@@ -1,8 +1,8 @@
 #ifndef _USART_DEVICE_H
 #define _USART_DEVICE_H
-/*
-* Author: Juan D. Martín
-* Description: Abstract method definition for the user to implement their own USART write operation
+/**
+* @author: Juan D. Martín
+* @details: Abstract method definition for the user to implement their own USART write operation
 */
 
 #include <stdint.h>
