@@ -17,9 +17,10 @@ uint8_t * pn532_GetFirmwareVersionCommand(USART_DEVICE * uart_dev){
     uint8_t lcs = ~0x02 + 1;
     uint8_t cs  = ~(PN532_FROM_UC_TFI + PN532_GET_FIRMWARE_VERSION_COMMAND ) + 1;
 
-    uint8_t packet[9] = { PREAMBLE, START_CODE_1, START_CODE_2, 0x02, lcs, PN532_FROM_UC_TFI,
-			PN532_GET_FIRMWARE_VERSION_COMMAND , cs, POSTAMBLE
-	};
+    uint8_t packet[9] = { 
+                            PREAMBLE, START_CODE_1, START_CODE_2, 0x02, lcs, PN532_FROM_UC_TFI,
+			                PN532_GET_FIRMWARE_VERSION_COMMAND , cs, POSTAMBLE
+	                    };
 
     uint8_t data[100];
     static uint8_t res[2] = {0,0};
@@ -42,9 +43,10 @@ uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev){
     uint8_t lcs = ~(0x05) + 1;
     uint8_t cs = ~(PN532_FROM_UC_TFI + 0x14 + 0x01 + 0x00 + 0x00) + 1;
 
-    uint8_t packet[12] = { PREAMBLE, START_CODE_1, START_CODE_2, 0x05, lcs, PN532_FROM_UC_TFI,
-				PN532_SAM_CONFIGURATION_COMMAND, 0x01, 0x00, 0x00, cs, POSTAMBLE
-	};
+    uint8_t packet[12] = { 
+                            PREAMBLE, START_CODE_1, START_CODE_2, 0x05, lcs, PN532_FROM_UC_TFI,
+				            PN532_SAM_CONFIGURATION_COMMAND, 0x01, 0x00, 0x00, cs, POSTAMBLE
+	                     };
 
     uint8_t data[100];
     uint32_t length = 0;
@@ -61,15 +63,17 @@ uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev){
 }
 
 //Hardcode max retries rf configuration
+//NOTE: eh, this could cause a problem in the future, but let stay with it for now :)
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev){
     uint8_t lcs = ~(0x06) + 1;
     uint8_t cs  = ~(PN532_FROM_UC_TFI + PN532_RF_CONFIGURATION_COMMAND + PN532_RF_CONF_CFGITEM_MAX_RETRIES
-                    + 0xFF + 0xFF + 0x02) + 1;
+                    + 0xFF + 0xFF + 0xFF) + 1;
 
-    uint8_t packet[13] = {  PREAMBLE, START_CODE_1, START_CODE_2, 0x06, lcs, PN532_FROM_UC_TFI, 
+    uint8_t packet[13] = {  
+                            PREAMBLE, START_CODE_1, START_CODE_2, 0x06, lcs, PN532_FROM_UC_TFI, 
                             PN532_RF_CONFIGURATION_COMMAND, PN532_RF_CONF_CFGITEM_MAX_RETRIES, 
-                            0xFF, 0xFF, 0x02, cs, POSTAMBLE
-                        };
+                            0xFF, 0xFF, 0xFF, cs, POSTAMBLE
+                         };
 
     uart_dev->Write(packet, 13);
 
@@ -82,9 +86,11 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
     uint8_t cs = ~(PN532_FROM_UC_TFI + PN532_IN_LIST_PASSIVE_TARGET_COMMAND + max_cards + 0x00) + 1;
 
     //this is hardcoded for 106 kbps type A (ISO/IEC14443 TypeA)
-    uint8_t packet[11] = {PREAMBLE, START_CODE_1, START_CODE_2, 0x04, lcs, PN532_FROM_UC_TFI, 
+    uint8_t packet[11] = {
+                           PREAMBLE, START_CODE_1, START_CODE_2, 0x04, lcs, PN532_FROM_UC_TFI, 
                            PN532_IN_LIST_PASSIVE_TARGET_COMMAND, max_cards, 0x00, cs, POSTAMBLE
                          };
+
     uart_dev->Write(packet, 11);
     return 0;
 }

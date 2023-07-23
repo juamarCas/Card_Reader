@@ -55,6 +55,6 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards);
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev);
 
 
-void pn532_SendCommand(USART_DEVICE * uart_dev);
+static void pn532_SendCommand(USART_DEVICE * uart_dev);
 
 #endif
