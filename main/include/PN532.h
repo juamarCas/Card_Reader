@@ -50,7 +50,7 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards);
 
 /**
  * @brief send Hardcoded RF configuration
- * @note this should be workd differently
+ * @note this should be workd differently since is hardcoded to infintly try
 */
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev);
 
