@@ -1,3 +1,8 @@
+/**
+ * @author Juan D. Martín
+ * @details NFC reader host controller for PN532. Reads tag information and send them to internet
+*/
+
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "usart_device.h"
@@ -32,12 +37,19 @@ void app_main(void)
     pn532_SendWakeUpCommand(&usart_dev);
     vTaskDelay(15 / portTICK_PERIOD_MS);
     uint8_t response = pn532_SendSAMConfiguration(&usart_dev);
+
     if(response <= 0){
         //some error with the reader
         while(1){}
     }
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    pn532_ConfigRF(&usart_dev);
+
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+
+    pn532_DetectCard(&usart_dev, PN532_ONE_CARD);
    
     
     while(1){
