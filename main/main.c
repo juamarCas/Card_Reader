@@ -1,6 +1,6 @@
 /**
  * @author Juan D. Martín
- * @details NFC reader host controller for PN532. Reads tag information and send them to internet
+ * @details NFC reader host controller for PN532. 
 */
 
 #include <stdio.h>
@@ -49,21 +49,23 @@ void app_main(void)
 
     vTaskDelay(500 / portTICK_PERIOD_MS);
 
-    pn532_DetectCard(&usart_dev, PN532_ONE_CARD);
+    
    
     
     while(1){
+
+        if(pn532_DetectCard(&usart_dev, PN532_ONE_CARD)){
+            gpio_set_level(GPIO_NUM_4, 1);
+        }
         
-        gpio_set_level(GPIO_NUM_4, 1);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        gpio_set_level(GPIO_NUM_4, 0);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
     
 }
 
 void Config_UART2(){
-uart_config_t uart_config = {
+    //by default the PN532 with communicates with 115200 bps for usart
+    uart_config_t uart_config = {
         .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
         .parity    = UART_PARITY_DISABLE,

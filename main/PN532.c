@@ -65,21 +65,27 @@ uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev){
     return 1;
 }
 
-//Hardcode max retries rf configuration
+//Hardcode for two retries :)
 //NOTE: eh, this could cause a problem in the future, but let stay with it for now :)
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev){
+    uint8_t MAX_RETRIES = 0x02;
     const uint8_t LENGTH = 0x06;
-    uint8_t lcs = ~(0x06) + 1;
+    uint8_t lcs = ~(LENGTH) + 1;
     uint8_t cs  = ~(PN532_FROM_UC_TFI + PN532_RF_CONFIGURATION_COMMAND + PN532_RF_CONF_CFGITEM_MAX_RETRIES
-                    + 0xFF + 0xFF + 0xFF) + 1;
+                    + 0xFF + 0xFF + MAX_RETRIES) + 1;
 
     uint8_t packet[13] = {  
                             PREAMBLE, START_CODE_1, START_CODE_2, LENGTH, lcs, PN532_FROM_UC_TFI, 
                             PN532_RF_CONFIGURATION_COMMAND, PN532_RF_CONF_CFGITEM_MAX_RETRIES, 
-                            0xFF, 0xFF, 0xFF, cs, POSTAMBLE
+                            0xFF, 0xFF, 0
+                            ,cs, POSTAMBLE
                          };
 
     uart_dev->Write(packet, 13);
+
+    uint8_t data[100];
+    uint32_t length = 0;
+    length = uart_dev->Read(data);
 
     return 0;
 }
@@ -91,12 +97,41 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
     uint8_t cs = ~(PN532_FROM_UC_TFI + PN532_IN_LIST_PASSIVE_TARGET_COMMAND + max_cards + 0x00) + 1;
 
     //this is hardcoded for 106 kbps type A (ISO/IEC14443 TypeA)
+    /**
+     * @todo add more parameters to the inListPassiveTarget command, 
+     * for now it only takes iso 14443-A iso
+    */
+    const uint8_t type_a_iso_option = 0x00;
     uint8_t packet[11] = {
                            PREAMBLE, START_CODE_1, START_CODE_2, LENGTH, lcs, PN532_FROM_UC_TFI, 
-                           PN532_IN_LIST_PASSIVE_TARGET_COMMAND, max_cards, 0x00, cs, POSTAMBLE
+                           PN532_IN_LIST_PASSIVE_TARGET_COMMAND, max_cards, type_a_iso_option, cs, POSTAMBLE
                          };
 
+    uint8_t ack[20];
+    uint32_t length = 0;
     uart_dev->Write(packet, 11);
+
+    length = uart_dev->Read(ack);
+
+    //this command takes some time to make a response, so it first
+    //receives ACK and then receives response
+    if(length <= 6){
+
+        if(pn532_checkACK(ack) <= 0){
+            return 0;
+        }
+
+        uint8_t card_info[100];
+        uint32_t card_info_length = 0;
+        
+
+        card_info_length = uart_dev->Read(card_info);
+        uart_dev->Write(card_info, card_info_length);
+
+        //7th byte is where the number of cards detected is shown
+        if(card_info[7] >= 0x01U) return 1;
+    }
+
     return 0;
 }
 
