@@ -97,14 +97,13 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries){
         return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 
 uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
     const uint8_t LENGTH = 0x04;
     uint8_t lcs = ~(LENGTH) + 1;
-    static uint8_t errArr[2] = {0x95, 0x95};
     uint8_t cs = ~(PN532_FROM_UC_TFI + PN532_IN_LIST_PASSIVE_TARGET_COMMAND + max_cards + 0x00) + 1;
 
     //this is hardcoded for 106 kbps type A (ISO/IEC14443 TypeA)
