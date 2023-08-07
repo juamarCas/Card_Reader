@@ -56,13 +56,6 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards);
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
 
 /**
- * @brief gets the tag 7 bytes UID
- * @param uart_dev pointer to a struct that contains write/read command for serial
- * @return array of bytes containing the UID
-*/
-uint8_t * pn532_GetUID(USART_DEVICE * uart_dev);
-
-/**
  * @brief Gets the last readed card UID
  * @return an array of bytes containing the UID
  * @note use this function only when a card is detected

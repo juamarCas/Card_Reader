@@ -38,7 +38,6 @@ void app_main(void)
 
     uint8_t response = pn532_SendSAMConfiguration(&usart_dev);
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    pn532_GetFirmwareVersionCommand(&usart_dev);
 
 
 
@@ -54,9 +53,7 @@ void app_main(void)
 
     vTaskDelay(15 / portTICK_PERIOD_MS);
 
-    pn532_ConfigRF(&usart_dev, PN532_RF_CONF_TWO_TRIES);
-
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    pn532_ConfigRF(&usart_dev, PN532_RF_CONF_TWO_TRIES);;
 
     
    
@@ -65,6 +62,9 @@ void app_main(void)
 
         if(pn532_DetectCard(&usart_dev, PN532_ONE_CARD)){
             gpio_set_level(GPIO_NUM_4, 1);
+            uint8_t * uid = pn532_GetUID();
+
+            Write(uid, 4);
         }
         
         vTaskDelay(500 / portTICK_PERIOD_MS);
