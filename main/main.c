@@ -11,7 +11,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
-#include "PN532_COMMANDS.h"
 #include "PN532.h"
 
 #define UART2_NUM 2
@@ -36,16 +35,26 @@ void app_main(void)
      
     pn532_SendWakeUpCommand(&usart_dev);
     vTaskDelay(15 / portTICK_PERIOD_MS);
+
     uint8_t response = pn532_SendSAMConfiguration(&usart_dev);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    pn532_GetFirmwareVersionCommand(&usart_dev);
+
+
 
     if(response <= 0){
         //some error with the reader
-        while(1){}
+        while(1){
+            gpio_set_level(GPIO_NUM_4, 1);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            gpio_set_level(GPIO_NUM_4, 0);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+        }
     }
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(15 / portTICK_PERIOD_MS);
 
-    pn532_ConfigRF(&usart_dev);
+    pn532_ConfigRF(&usart_dev, PN532_RF_CONF_TWO_TRIES);
 
     vTaskDelay(500 / portTICK_PERIOD_MS);
 
@@ -89,7 +98,7 @@ void Write(uint8_t * data, uint32_t size){
 
 uint32_t Read(uint8_t * data){
     uint8_t length_check = 0;
-    while(length_check <= 0){
+    while(length_check == 0){
         ESP_ERROR_CHECK(uart_get_buffered_data_len(UART2_NUM, (size_t *)&length_check));
         length_check = uart_read_bytes(UART2_NUM, data, length_check, 100);
 

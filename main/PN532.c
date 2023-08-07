@@ -1,6 +1,7 @@
 #include "PN532.h"
 
 static const uint8_t ACK_arr[6] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
+static uint8_t errArr_check[2] = {0x95, 0x95};
 
 void pn532_SendWakeUpCommand(USART_DEVICE * uart_dev){
     const uint8_t wakeup[5] = {0x55, 0x55, 0x00, 0x00, 0x00};
@@ -53,6 +54,12 @@ uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev){
 
     uint8_t data[100];
     uint32_t length = 0;
+
+    if(length < 0){
+        //reading error, restart the system
+        return 0;
+    }
+
     uart_dev->Write(packet, 12);
     
     //wait for answer from NFC read
@@ -67,8 +74,8 @@ uint8_t pn532_SendSAMConfiguration(USART_DEVICE * uart_dev){
 
 //Hardcode for two retries :)
 //NOTE: eh, this could cause a problem in the future, but let stay with it for now :)
-uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev){
-    uint8_t MAX_RETRIES = 0x02;
+uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries){
+    uint8_t MAX_RETRIES = retries;
     const uint8_t LENGTH = 0x06;
     uint8_t lcs = ~(LENGTH) + 1;
     uint8_t cs  = ~(PN532_FROM_UC_TFI + PN532_RF_CONFIGURATION_COMMAND + PN532_RF_CONF_CFGITEM_MAX_RETRIES
@@ -77,7 +84,7 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev){
     uint8_t packet[13] = {  
                             PREAMBLE, START_CODE_1, START_CODE_2, LENGTH, lcs, PN532_FROM_UC_TFI, 
                             PN532_RF_CONFIGURATION_COMMAND, PN532_RF_CONF_CFGITEM_MAX_RETRIES, 
-                            0xFF, 0xFF, 0
+                            0xFF, 0xFF, MAX_RETRIES
                             ,cs, POSTAMBLE
                          };
 
@@ -86,14 +93,29 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev){
     uint8_t data[100];
     uint32_t length = 0;
     length = uart_dev->Read(data);
+    if(length < 0){
+        //reading error, restart the system
+        return 0;
+    }
 
     return 0;
 }
 
 
 uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
+    
+    return 0;
+}
+
+uint8_t * pn532_GetUID(USART_DEVICE * uart_dev){
+    static uint8_t uid_7b[7] = {0}; 
+    return uid_7b;
+}
+
+static uint8_t * pn532_getInfoCard(USART_DEVICE * uart_dev){
     const uint8_t LENGTH = 0x04;
     uint8_t lcs = ~(LENGTH) + 1;
+    static uint8_t errArr[2] = {0x95, 0x95};
     uint8_t cs = ~(PN532_FROM_UC_TFI + PN532_IN_LIST_PASSIVE_TARGET_COMMAND + max_cards + 0x00) + 1;
 
     //this is hardcoded for 106 kbps type A (ISO/IEC14443 TypeA)
@@ -113,26 +135,32 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
 
     length = uart_dev->Read(ack);
 
+
+    if(length < 0){
+        //reading error, restart the system
+        return errArr;
+    }
+
     //this command takes some time to make a response, so it first
     //receives ACK and then receives response
     if(length <= 6){
 
         if(pn532_checkACK(ack) <= 0){
-            return 0;
+            return errArr;
         }
 
-        uint8_t card_info[100];
+        static uint8_t card_info[100];
         uint32_t card_info_length = 0;
         
 
         card_info_length = uart_dev->Read(card_info);
-        uart_dev->Write(card_info, card_info_length);
+        if(card_info_length < 0){
+            //reading error, restart the system
+            return errArr;
+        }
 
-        //7th byte is where the number of cards detected is shown
-        if(card_info[7] >= 0x01U) return 1;
+        return card_info;
     }
-
-    return 0;
 }
 
 
