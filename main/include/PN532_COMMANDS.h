@@ -26,6 +26,8 @@
 #define PN532_RF_CONF_CFGITEM_MAX_RETRIES 0x05U
 #define PN532_RF_CONF_RFCAOFF_RFON        0x01U
 #define PN532_RF_CONF_RFCAOFF_RFOFF       0x00U
+#define PN532_RF_CONF_INF_TRIES           0xFFU
+#define PN532_RF_CONF_TWO_TRIES           0x02U
 
 //mifare commands
 

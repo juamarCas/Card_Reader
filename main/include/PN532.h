@@ -50,10 +50,17 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards);
 
 /**
  * @brief send Hardcoded RF configuration
- * @note this should be workd differently since is hardcoded to infintly try
+ * @param uart_dev pointer to a struct that contains write/read command for serial
+ * @param retries times the reader will try to read a card
 */
-uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev);
+uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
 
+/**
+ * @brief Gets the last readed card UID
+ * @return an array of bytes containing the UID
+ * @note use this function only when a card is detected
+*/
+uint8_t * pn532_GetUID();
 
 static void pn532_SendCommand(USART_DEVICE * uart_dev);
 

@@ -1,6 +1,7 @@
 #include "PN532.h"
 
 static const uint8_t ACK_arr[6] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
+static uint8_t UID_arr[7] = {0};
 
 void pn532_SendWakeUpCommand(USART_DEVICE * uart_dev){
     const uint8_t wakeup[5] = {0x55, 0x55, 0x00, 0x00, 0x00};
@@ -139,23 +140,27 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
 
         static uint8_t card_info[100];
         uint32_t card_info_length = 0;
-        
 
         card_info_length = uart_dev->Read(card_info);
         if(card_info_length < 0){
             //reading error, restart the system
             return 0;
         }
-
-        return card_info;
+        //saves UID
+        for(int i = 0; i < 4; i++){
+            UID_arr[i] = card_info[13 + i];
+        }
+        
+        if(card_info[7] >= 0x01U) return 1;
     }
     return 0;
 }
 
-uint8_t * pn532_GetUID(USART_DEVICE * uart_dev){
-    static uint8_t uid_7b[7] = {0}; 
-    return uid_7b;
+//remember, this only returns the UID of the last readed card, so call it only after read a card
+uint8_t * pn532_GetUID(){
+    return UID_arr;
 }
+
 
 static uint8_t pn532_checkACK(uint8_t * data){
     //6 because the first 6 bytes are the ACK code
