@@ -103,19 +103,8 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries){
 
 
 uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
-    
-    return 0;
-}
-
-uint8_t * pn532_GetUID(USART_DEVICE * uart_dev){
-    static uint8_t uid_7b[7] = {0}; 
-    return uid_7b;
-}
-
-static uint8_t * pn532_getInfoCard(USART_DEVICE * uart_dev){
     const uint8_t LENGTH = 0x04;
     uint8_t lcs = ~(LENGTH) + 1;
-    static uint8_t errArr[2] = {0x95, 0x95};
     uint8_t cs = ~(PN532_FROM_UC_TFI + PN532_IN_LIST_PASSIVE_TARGET_COMMAND + max_cards + 0x00) + 1;
 
     //this is hardcoded for 106 kbps type A (ISO/IEC14443 TypeA)
@@ -138,7 +127,7 @@ static uint8_t * pn532_getInfoCard(USART_DEVICE * uart_dev){
 
     if(length < 0){
         //reading error, restart the system
-        return errArr;
+        return 0;
     }
 
     //this command takes some time to make a response, so it first
@@ -146,21 +135,26 @@ static uint8_t * pn532_getInfoCard(USART_DEVICE * uart_dev){
     if(length <= 6){
 
         if(pn532_checkACK(ack) <= 0){
-            return errArr;
+            return 0;
         }
 
         static uint8_t card_info[100];
         uint32_t card_info_length = 0;
-        
 
         card_info_length = uart_dev->Read(card_info);
         if(card_info_length < 0){
             //reading error, restart the system
-            return errArr;
+            return 0;
         }
-
-        return card_info;
+        //saves UID
+        if(card_info[7] >= 0x01U) return 1;
     }
+    return 0;
+}
+
+uint8_t * pn532_GetUID(USART_DEVICE * uart_dev){
+    static uint8_t uid_7b[7] = {0}; 
+    return uid_7b;
 }
 
 

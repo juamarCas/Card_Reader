@@ -62,8 +62,12 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
 */
 uint8_t * pn532_GetUID(USART_DEVICE * uart_dev);
 
-static uint8_t* pn532_getInfoCard(USART_DEVICE * uart_dev);
-
+/**
+ * @brief Gets the last readed card UID
+ * @return an array of bytes containing the UID
+ * @note use this function only when a card is detected
+*/
+uint8_t * pn532_GetUID();
 
 static void pn532_SendCommand(USART_DEVICE * uart_dev);
 
