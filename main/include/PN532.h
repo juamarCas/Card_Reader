@@ -56,12 +56,37 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards);
 uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
 
 /**
+ * @brief authenticate to a sector of mifare
+ * @param uart_dev pointer to a struct that contains write/read command for serial
+ * @param block block number where the user wants to authenticate
+ * @param key_a array containing key A
+ * @param key_b array containing key_b, this key almost always is optional, if not configured to use key b, send array of 0, otherwise send key b
+ * @param uid array containing uid
+ * @return 1 if authentication succeded, 0 if bad authentication
+*/
+uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t block, uint8_t * key_a, uint8_t * uid);
+
+/**
+ * @brief configures access bits of a mifare tag
+*/
+uint8_t pn532_mifare_configure_access_bits(USART_DEVICE * usart_dev, uint8_t block);
+
+/**
+ * @brief Writes 16 bytes of data to sector block
+ * 
+ * @return 1 if the opeartion was succesful, 0 if any error ocurred
+*/
+uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t sector);
+
+uint8_t pn532_mifare_write_byte(USART_DEVICE * usart_dev, uint8_t data, uint8_t sector);
+
+/**
  * @brief Gets the last readed card UID
  * @return an array of bytes containing the UID
- * @note use this function only when a card is detected
+ * @note call this function only when a card is detected
 */
 uint8_t * pn532_GetUID();
 
-static void pn532_SendCommand(USART_DEVICE * uart_dev);
+static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t data_len);
 
 #endif

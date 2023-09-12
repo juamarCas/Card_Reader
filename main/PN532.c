@@ -1,7 +1,15 @@
+/**
+* @author Juan D. Martín
+* @details Abstract methods to send commands to the PN532 NFC reader
+*/
 #include "PN532.h"
 
 static const uint8_t ACK_arr[6] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
-static uint8_t UID_arr[7] = {0};
+ /**
+ * @note by now i have cards with 4 bytes UID, this is hardcoded, change it in a future
+ */
+static uint8_t UID_arr[4] = {0,0,0,0};
+
 
 void pn532_SendWakeUpCommand(USART_DEVICE * uart_dev){
     const uint8_t wakeup[5] = {0x55, 0x55, 0x00, 0x00, 0x00};
@@ -146,14 +154,31 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
             //reading error, restart the system
             return 0;
         }
-        //saves UID
-        for(int i = 0; i < 4; i++){
+        //saves UID, the len of the UID is in the 12th position
+        uint8_t UID_Len = card_info[12];
+        for(int i = 0; i < UID_Len; i++){
             UID_arr[i] = card_info[13 + i];
         }
         
         if(card_info[7] >= 0x01U) return 1;
     }
     return 0;
+}
+
+uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t sector){
+
+}
+
+uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t block, uint8_t * key_a, uint8_t * uid){
+    uint8_t packet[60] = {'\0'};
+    uint8_t data_len = 15;
+    uint8_t len_cs   = ~(data_len) + 1;
+    packet[0] = PREAMBLE;
+    packet[1] = START_CODE_1;
+    packet[2] = START_CODE_2;
+    packet[3] = data_len;
+    packet[4] = len_cs;
+
 }
 
 //remember, this only returns the UID of the last readed card, so call it only after read a card
