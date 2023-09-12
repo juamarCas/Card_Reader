@@ -61,10 +61,12 @@ void app_main(void)
     while(1){
 
         if(pn532_DetectCard(&usart_dev, PN532_ONE_CARD)){
-            gpio_set_level(GPIO_NUM_4, 1);
             uint8_t * uid = pn532_GetUID();
+            uint8_t keyA[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+            if(pn532_mifare_authenticate_key_a(&usart_dev, 1, keyA, uid)){
+                gpio_set_level(GPIO_NUM_4, 1);
 
-            Write(uid, 4);
+            }
         }
         
         vTaskDelay(500 / portTICK_PERIOD_MS);
