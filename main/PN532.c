@@ -68,7 +68,7 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries){
     uint8_t data[50];
     uint32_t length = 0;
     length = uart_dev->Read(data);
-    if(length < 0){
+    if(length <= 0){
         //reading error, restart the system
         return 0;
     }
@@ -92,7 +92,7 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
     length = uart_dev->Read(ack);
 
 
-    if(length < 0){
+    if(length <= 0){
         //reading error, restart the system
         return 0;
     }
@@ -124,7 +124,7 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
     return 0;
 }
 
-uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t sector, uint8_t block){
+uint8_t pn532_mifare_write_16(USART_DEVICE * uart_dev, uint8_t * data, uint8_t sector, uint8_t block){
     uint8_t addr = 4 * sector + block;
     uint8_t packet[19] = {'\0'};
     packet[0] = 0x01;
@@ -134,7 +134,28 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t 
         packet[3 + i] = data[i];
     }
 
-    pn532_SendCommand(usart_dev, PN532_IN_DATA_EXCHANGE_COMMAND, packet, 19);
+    pn532_SendCommand(uart_dev, PN532_IN_DATA_EXCHANGE_COMMAND, packet, 19);
+     //read ack
+    uint8_t ack[10];
+    uint32_t length = 0;
+    length = uart_dev->Read(ack);
+
+    if(length <= 0){
+        return 0;
+    }
+
+    //read response
+    uint8_t res[15];
+    length = 0;
+    length = uart_dev->Read(res);
+    if(length <= 0) return 0;
+
+    uint8_t status_byte = res[7];
+
+    uint8_t error_code  = status_byte & 0x3F;
+
+    if(error_code != 0x00) return 0;
+
     return 1;
 }
 
@@ -164,7 +185,7 @@ uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector,
     uint32_t length = 0;
     length = uart_dev->Read(data);
 
-    if(length < 0){
+    if(length <= 0){
         return 0;
     }
 
