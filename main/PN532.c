@@ -246,6 +246,13 @@ static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t 
     uart_dev->Write(packet, total_packet_len);
 }
 
+uint8_t pn532_release_target(USART_DEVICE * usart_device){
+    uint8_t target[1] = {0x01};
+    pn532_SendCommand(usart_device, PN532_RELEASE_TARGET, target, 1);
+    
+    return 1;
+}
+
 //remember, this only returns the UID of the last readed card, so call it only after read a card
 uint8_t * pn532_GetUID(){
     return UID_arr;

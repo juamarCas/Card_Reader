@@ -63,14 +63,16 @@ void app_main(void)
         if(pn532_DetectCard(&usart_dev, PN532_ONE_CARD)){
             uint8_t * uid = pn532_GetUID();
             uint8_t keyA[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-            if(pn532_mifare_authenticate_key_a(&usart_dev, 1, keyA, uid)){
+            if(pn532_mifare_authenticate_key_a(&usart_dev, 3, 1, keyA, uid)){
                 gpio_set_level(GPIO_NUM_4, 1);
-
+                
             }
         }
         
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(1500 / portTICK_PERIOD_MS);
     }
+
+    vTaskDelay(200 / portTICK_PERIOD_MS);
     
 }
 

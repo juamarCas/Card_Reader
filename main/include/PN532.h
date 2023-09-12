@@ -80,6 +80,12 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t 
 uint8_t pn532_mifare_write_byte(USART_DEVICE * usart_dev, uint8_t data, uint8_t sector);
 
 /**
+ * @brief release target number 1, so is hardcoded
+ * @returns 1 if operation was successfull, 0 if any error ocurred
+*/
+uint8_t pn532_release_target(USART_DEVICE * usart_device);
+
+/**
  * @brief Gets the last readed card UID
  * @return an array of bytes containing the UID
  * @note call this function only when a card is detected

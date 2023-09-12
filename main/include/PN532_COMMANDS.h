@@ -21,6 +21,8 @@
 #define PN532_RF_CONFIGURATION_COMMAND       0x32U
 #define PN532_IN_LIST_PASSIVE_TARGET_COMMAND 0x4AU
 #define PN532_IN_DATA_EXCHANGE_COMMAND       0x40U
+#define PN532_DESELECT_TARGET                0X44U
+#define PN532_RELEASE_TARGET                 0x52U
 
 //pn532 rf configuration params
 #define PN532_RF_CONF_CFGITEM_RF_FIELD    0x01U
