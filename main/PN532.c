@@ -189,7 +189,6 @@ static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t 
     uint8_t total_data_len = data_len + 2;
     uint8_t len_cs   = ~(total_data_len) + 1;
     uint8_t data_sum = command + PN532_FROM_UC_TFI;
-    uint8_t count = 0;
 
     //9 fixed data + user data
     uint8_t total_packet_len = 9 + data_len;
