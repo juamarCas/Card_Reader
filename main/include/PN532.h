@@ -90,6 +90,8 @@ uint8_t * pn532_GetUID();
  * @brief send data packet, can be used when the data length is not fixed
  * @param uart_dev pointer to a struct that contains write/read command for serial
  * @param command PN532 command, those are defined in the user manual: https://www.nxp.com/docs/en/user-guide/141520.pdf page 93
+ * @param data array containing the data information for the command
+ * @param data_len length of the data array
 */
 static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t * data,uint8_t data_len);
 
