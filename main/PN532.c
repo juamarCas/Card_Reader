@@ -131,7 +131,7 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t 
     packet[1] = PN532_MIFARE_WRITE_16_BYTES;
     packet[2] = addr;
     for(uint8_t i = 0; i < 16; i++){
-        packet[3 + i] = i;
+        packet[3 + i] = data[i];
     }
 
     pn532_SendCommand(usart_dev, PN532_IN_DATA_EXCHANGE_COMMAND, packet, 19);
