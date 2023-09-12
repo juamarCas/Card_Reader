@@ -64,6 +64,7 @@ void app_main(void)
             uint8_t * uid = pn532_GetUID();
             uint8_t keyA[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
             if(pn532_mifare_authenticate_key_a(&usart_dev, 1, keyA, uid)){
+                pn532_mifare_write_16(&usart_dev, keyA, 3, 1);
                 gpio_set_level(GPIO_NUM_4, 1);
 
             }
