@@ -33,7 +33,7 @@ uint8_t * pn532_GetFirmwareVersionCommand(USART_DEVICE * uart_dev){
 			                PN532_GET_FIRMWARE_VERSION_COMMAND , cs, POSTAMBLE
 	                    };
 
-    uint8_t data[100];
+    uint8_t data[50];
     static uint8_t res[2] = {0,0};
     uart_dev->Write(packet, 9);
     uart_dev->Read(data);
@@ -125,7 +125,6 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
                            PREAMBLE, START_CODE_1, START_CODE_2, LENGTH, lcs, PN532_FROM_UC_TFI, 
                            PN532_IN_LIST_PASSIVE_TARGET_COMMAND, max_cards, type_a_iso_option, cs, POSTAMBLE
                          };
-
     uint8_t ack[20];
     uint32_t length = 0;
     uart_dev->Write(packet, 11);
@@ -166,19 +165,51 @@ uint8_t pn532_DetectCard(USART_DEVICE * uart_dev, uint8_t max_cards){
 }
 
 uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t sector){
-
+    return 1;
 }
 
 uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t block, uint8_t * key_a, uint8_t * uid){
-    uint8_t packet[60] = {'\0'};
-    uint8_t data_len = 15;
-    uint8_t len_cs   = ~(data_len) + 1;
+    return 1;
+
+}
+
+//this is up here in this file, but to remember
+//lcs -> the number of data bytes (inverse) checksum
+//cs  -> checkshum,   is calculated as the inverse sum of every data byte including TFI
+//packets are build with the following structure: 
+// {0x00, 0x00, 0xFF, DATA_LENGTH, DATA_LENGTH_CHECKSUM, TFI, [DATA ARRAY], DATA_CHECKSUM. 0x00}
+//where len_cs = ~(DATA_LENGTH) + 1
+//the data length is the sum of the TFI + length(DATA ARRAY)
+//data_cs = ~(TFI + COMMAND +  DATA[0] + DATA[1] + ... + DATA[n]) + 1
+
+
+static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t * data, uint8_t data_len){
+    uint8_t packet[64] = {'\0'};
+    //data_len + 2, that plus one is adding the TFI and command that count as data packet
+    uint8_t total_data_len = data_len + 2;
+    uint8_t len_cs   = ~(total_data_len) + 1;
+    uint8_t data_sum = command + PN532_FROM_UC_TFI;
+    uint8_t count = 0;
+
+    //9 fixed data + user data
+    uint8_t total_packet_len = 9 + data_len;
     packet[0] = PREAMBLE;
     packet[1] = START_CODE_1;
     packet[2] = START_CODE_2;
-    packet[3] = data_len;
+    packet[3] = total_data_len;
     packet[4] = len_cs;
+    packet[5] = PN532_FROM_UC_TFI;
+    packet[6] = command;
+    for( uint8_t i = 0; i < data_len; i++){
+        data_sum += data[i];
+        packet[7 + i] = data[i];
+    }
 
+    uint8_t data_cs = ~(data_sum) + 1;
+    packet[7 + data_len] = data_cs;
+    packet[7 + data_len + 1] = POSTAMBLE;
+
+    uart_dev->Write(packet, total_packet_len);
 }
 
 //remember, this only returns the UID of the last readed card, so call it only after read a card

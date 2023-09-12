@@ -60,7 +60,6 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
  * @param uart_dev pointer to a struct that contains write/read command for serial
  * @param block block number where the user wants to authenticate
  * @param key_a array containing key A
- * @param key_b array containing key_b, this key almost always is optional, if not configured to use key b, send array of 0, otherwise send key b
  * @param uid array containing uid
  * @return 1 if authentication succeded, 0 if bad authentication
 */
@@ -87,6 +86,11 @@ uint8_t pn532_mifare_write_byte(USART_DEVICE * usart_dev, uint8_t data, uint8_t 
 */
 uint8_t * pn532_GetUID();
 
-static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t data_len);
+/**
+ * @brief send data packet, can be used when the data length is not fixed
+ * @param uart_dev pointer to a struct that contains write/read command for serial
+ * @param command PN532 command, those are defined in the user manual: https://www.nxp.com/docs/en/user-guide/141520.pdf page 93
+*/
+static void pn532_SendCommand(USART_DEVICE * uart_dev, uint8_t command, uint8_t * data,uint8_t data_len);
 
 #endif
