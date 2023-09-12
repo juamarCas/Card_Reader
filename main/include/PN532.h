@@ -63,7 +63,7 @@ uint8_t pn532_ConfigRF(USART_DEVICE * uart_dev, uint8_t retries);
  * @param uid array containing uid
  * @return 1 if authentication succeded, 0 if bad authentication
 */
-uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector, uint8_t * key_a, uint8_t * uid);
+uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector, uint8_t block, uint8_t * key_a, uint8_t * uid);
 
 /**
  * @brief configures access bits of a mifare tag

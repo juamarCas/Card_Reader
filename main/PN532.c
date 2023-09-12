@@ -161,9 +161,9 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * uart_dev, uint8_t * data, uint8_t s
 
 
 
-uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector, uint8_t * key_a, uint8_t * uid){
+uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector, uint8_t block, uint8_t * key_a, uint8_t * uid){
     //each sector trailer is located in sum of 4 addresses starting in the address 3
-    uint8_t sector_addr = 0x0D;
+    uint8_t sector_addr = sector + block;
     //keya has 6 digits + uid 4  + 1 tag number + 1 command = 12
     uint8_t packet[12] = {'\0'};
     //this 0x01 indicates the tag number one detected
