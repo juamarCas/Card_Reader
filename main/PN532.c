@@ -145,7 +145,7 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * uart_dev, uint8_t * data, uint8_t s
     }
 
     //read response
-    uint8_t res[15];
+    uint8_t res[16];
     length = 0;
     length = uart_dev->Read(res);
     if(length <= 0) return 0;
@@ -159,11 +159,44 @@ uint8_t pn532_mifare_write_16(USART_DEVICE * uart_dev, uint8_t * data, uint8_t s
     return 1;
 }
 
+uint8_t pn532_mifare_read_16(USART_DEVICE * uart_dev, uint8_t * data_out, uint8_t sector, uint8_t block){
+    uint8_t addr = 4 * sector + block;
+    uint8_t packet[3] = {0x01U, PN532_MIFARE_READ_16_BYTES, addr};
+
+    pn532_SendCommand(uart_dev, PN532_IN_DATA_EXCHANGE_COMMAND, packet, 3);
+     //read ack
+    uint8_t data[10];
+    uint32_t length = 0;
+    length = uart_dev->Read(data);
+
+    if(length <= 0){
+        return 0;
+    }
+
+    //read response
+    uint8_t res[16];
+    length = 0;
+    length = uart_dev->Read(res);
+    if(length <= 0) return 0;
+
+    uint8_t status_byte = res[7];
+
+    uint8_t error_code  = status_byte & 0x3F;
+
+    if(error_code != 0x00) return 0;
+
+    for(int i = 0; i < 16; i++){
+        data_out[i] = res[8 + i];
+    }
+
+    return 1;
+}
+
 
 
 uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector, uint8_t block, uint8_t * key_a, uint8_t * uid){
     //each sector trailer is located in sum of 4 addresses starting in the address 3
-    uint8_t sector_addr = sector + block;
+    uint8_t sector_addr = 4*sector + block;
     //keya has 6 digits + uid 4  + 1 tag number + 1 command = 12
     uint8_t packet[12] = {'\0'};
     //this 0x01 indicates the tag number one detected
@@ -193,7 +226,7 @@ uint8_t pn532_mifare_authenticate_key_a(USART_DEVICE * uart_dev, uint8_t sector,
     uint8_t res[15];
     length = 0;
     length = uart_dev->Read(res);
-    if(length < 0) return 0;
+    if(length <= 0) return 0;
 
     uint8_t status_byte = res[7];
     //status byte is in the following form:
