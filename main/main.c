@@ -67,12 +67,12 @@ void app_main(void)
                 gpio_set_level(GPIO_NUM_4, 1);
                 
             }
+            vTaskDelay(1500 / portTICK_PERIOD_MS);
         }
         
-        vTaskDelay(1500 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
-    vTaskDelay(200 / portTICK_PERIOD_MS);
     
 }
 

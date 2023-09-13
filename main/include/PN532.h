@@ -72,10 +72,16 @@ uint8_t pn532_mifare_configure_access_bits(USART_DEVICE * usart_dev, uint8_t blo
 
 /**
  * @brief Writes 16 bytes of data to sector block
- * 
+ * @param data, array of 16 bytes
+ * @param sector memory sector of the mifare card
+ * @param block sector block of the mifare card
  * @return 1 if the opeartion was succesful, 0 if any error ocurred
 */
 uint8_t pn532_mifare_write_16(USART_DEVICE * usart_dev, uint8_t * data, uint8_t sector, uint8_t block);
+
+/**
+ * 
+*/
 
 uint8_t pn532_mifare_write_byte(USART_DEVICE * usart_dev, uint8_t data, uint8_t sector);
 
